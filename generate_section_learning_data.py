@@ -88,7 +88,11 @@ def parse_args() -> Namespace:
     parser.add_argument(
         "--output", type=str, default="data.csv", help="Output CSV file name"
     )
+    parser.add_argument(
+        "--batch_size", type=int, default=500, help="Number of samples per batch"
+    )
     return parser.parse_args()
+
 
 
 def generate_learning_data():
@@ -105,57 +109,58 @@ def generate_learning_data():
 
         if (num_sections := args.num_sections) < 0:
             num_sections = config["num_sections"]
-            
         assert num_sections > 0, "Number of sections must be positive."
 
-        logger.info("Generating random section parameters...")
-        logger.debug(f"Number of sections: {num_sections}")
-        tasks = []
-        for _ in range(num_sections):
-            section_params = random_section_params(section_data)
-            mesh_sizes = section_data["mesh_sizes"]
-            sample_input = SampleInput(
-                section_type=section_type,
-                section_params=section_params,
-                mesh_sizes=mesh_sizes,
-                material_params=material_params,
-            )
-            tasks.append(sample_input)
-
-        logger.info(f"Generated {len(tasks)} tasks.")
-
+        batch_size = args.batch_size
         num_workers = args.num_workers
-        logger.info(f"Generating data with {num_workers} parallel workers...")
+        output = args.output
 
-        data = []
-        with multiprocessing.Pool(num_workers) as pool:
-            with tqdm(total=len(tasks), desc="Generating samples") as pbar:
+        logger.info(f"Generating {num_sections} samples in batches of {batch_size}...")
+        total_batches = (num_sections + batch_size - 1) // batch_size
 
-                def on_success(result: Any) -> None:
-                    """Called after each successful worker execution."""
-                    data.append(result)
-                    pbar.update(1)
+        for batch_idx in range(total_batches):
+            start_idx = batch_idx * batch_size
+            end_idx = min(start_idx + batch_size, num_sections)
+            batch_count = end_idx - start_idx
+            logger.info(f"Processing batch {batch_idx+1}/{total_batches} ({batch_count} samples)...")
 
-                def on_error(e: Exception) -> None:
-                    """Called after a failed worker execution."""
-                    logger.error(f"Error in worker: {e}")
-                    pbar.update(1)
+            tasks = []
+            for _ in range(batch_count):
+                section_params = random_section_params(section_data)
+                mesh_sizes = section_data["mesh_sizes"]
+                sample_input = SampleInput(
+                    section_type=section_type,
+                    section_params=section_params,
+                    mesh_sizes=mesh_sizes,
+                    material_params=material_params,
+                )
+                tasks.append(sample_input)
 
-                for t in tasks:
-                    pool.apply_async(
-                        generate_sample,
-                        args=(t,),
-                        callback=on_success,
-                        error_callback=on_error,
-                    )
+            data = []
+            with multiprocessing.Pool(num_workers) as pool:
+                with tqdm(total=len(tasks), desc=f"Batch {batch_idx+1}/{total_batches}") as pbar:
+                    def on_success(result: Any) -> None:
+                        data.append(result)
+                        pbar.update(1)
+                    def on_error(e: Exception) -> None:
+                        logger.error(f"Error in worker: {e}")
+                        pbar.update(1)
+                    for t in tasks:
+                        pool.apply_async(
+                            generate_sample,
+                            args=(t,),
+                            callback=on_success,
+                            error_callback=on_error,
+                        )
+                    pool.close()
+                    pool.join()
 
-                pool.close()
-                pool.join()
-
-        logger.info(f"Data generation completed. Saving results to {args.output} ...")
-        df = pd.DataFrame(data)
-        df.to_csv(args.output, index=False)
-        logger.info(f"Saved results to {args.output}.")
+            df = pd.DataFrame(data)
+            # Write header only for first batch
+            write_header = batch_idx == 0
+            df.to_csv(output, mode='a', header=write_header, index=False)
+            logger.info(f"Appended batch {batch_idx+1} to {output}.")
+        logger.info(f"Data generation completed. All batches saved to {output}.")
     except Exception as e:
         print(f"Error: {e}")
         return 1
