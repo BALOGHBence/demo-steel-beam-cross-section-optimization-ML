@@ -1,0 +1,267 @@
+demo-steel-beam-cross-section-optimization-ml v0.1.0
+├── matplotlib v3.10.7
+│   ├── contourpy v1.3.3
+│   │   └── numpy v1.26.4
+│   ├── cycler v0.12.1
+│   ├── fonttools v4.60.1
+│   ├── kiwisolver v1.4.9
+│   ├── numpy v1.26.4
+│   ├── packaging v25.0
+│   ├── pillow v12.0.0
+│   ├── pyparsing v3.2.5
+│   └── python-dateutil v2.9.0.post0
+│       └── six v1.17.0
+├── mlflow v3.6.0
+│   ├── alembic v1.17.2
+│   │   ├── mako v1.3.10
+│   │   │   └── markupsafe v3.0.3
+│   │   ├── sqlalchemy v2.0.44
+│   │   │   └── typing-extensions v4.15.0
+│   │   └── typing-extensions v4.15.0
+│   ├── cryptography v46.0.3
+│   │   └── cffi v2.0.0
+│   │       └── pycparser v2.23
+│   ├── docker v7.1.0
+│   │   ├── requests v2.32.5
+│   │   │   ├── certifi v2025.11.12
+│   │   │   ├── charset-normalizer v3.4.4
+│   │   │   ├── idna v3.11
+│   │   │   └── urllib3 v2.5.0
+│   │   └── urllib3 v2.5.0
+│   ├── flask v3.1.2
+│   │   ├── blinker v1.9.0
+│   │   ├── click v8.3.0
+│   │   ├── itsdangerous v2.2.0
+│   │   ├── jinja2 v3.1.6
+│   │   │   └── markupsafe v3.0.3
+│   │   ├── markupsafe v3.0.3
+│   │   └── werkzeug v3.1.3
+│   │       └── markupsafe v3.0.3
+│   ├── flask-cors v6.0.1
+│   │   ├── flask v3.1.2 (*)
+│   │   └── werkzeug v3.1.3 (*)
+│   ├── graphene v3.4.3
+│   │   ├── graphql-core v3.2.7
+│   │   ├── graphql-relay v3.2.0
+│   │   │   └── graphql-core v3.2.7
+│   │   ├── python-dateutil v2.9.0.post0 (*)
+│   │   └── typing-extensions v4.15.0
+│   ├── gunicorn v23.0.0
+│   │   └── packaging v25.0
+│   ├── huey v2.5.4
+│   ├── matplotlib v3.10.7 (*)
+│   ├── mlflow-skinny v3.6.0
+│   │   ├── cachetools v6.2.2
+│   │   ├── click v8.3.0
+│   │   ├── cloudpickle v3.1.2
+│   │   ├── databricks-sdk v0.73.0
+│   │   │   ├── google-auth v2.43.0
+│   │   │   │   ├── cachetools v6.2.2
+│   │   │   │   ├── pyasn1-modules v0.4.2
+│   │   │   │   │   └── pyasn1 v0.6.1
+│   │   │   │   └── rsa v4.9.1
+│   │   │   │       └── pyasn1 v0.6.1
+│   │   │   ├── protobuf v6.33.1
+│   │   │   └── requests v2.32.5 (*)
+│   │   ├── fastapi v0.121.2
+│   │   │   ├── annotated-doc v0.0.4
+│   │   │   ├── pydantic v2.12.4
+│   │   │   │   ├── annotated-types v0.7.0
+│   │   │   │   ├── pydantic-core v2.41.5
+│   │   │   │   │   └── typing-extensions v4.15.0
+│   │   │   │   ├── typing-extensions v4.15.0
+│   │   │   │   └── typing-inspection v0.4.2
+│   │   │   │       └── typing-extensions v4.15.0
+│   │   │   ├── starlette v0.49.3
+│   │   │   │   ├── anyio v4.11.0
+│   │   │   │   │   ├── idna v3.11
+│   │   │   │   │   ├── sniffio v1.3.1
+│   │   │   │   │   └── typing-extensions v4.15.0
+│   │   │   │   └── typing-extensions v4.15.0
+│   │   │   └── typing-extensions v4.15.0
+│   │   ├── gitpython v3.1.45
+│   │   │   └── gitdb v4.0.12
+│   │   │       └── smmap v5.0.2
+│   │   ├── importlib-metadata v8.7.0
+│   │   │   └── zipp v3.23.0
+│   │   ├── opentelemetry-api v1.38.0
+│   │   │   ├── importlib-metadata v8.7.0 (*)
+│   │   │   └── typing-extensions v4.15.0
+│   │   ├── opentelemetry-proto v1.38.0
+│   │   │   └── protobuf v6.33.1
+│   │   ├── opentelemetry-sdk v1.38.0
+│   │   │   ├── opentelemetry-api v1.38.0 (*)
+│   │   │   ├── opentelemetry-semantic-conventions v0.59b0
+│   │   │   │   ├── opentelemetry-api v1.38.0 (*)
+│   │   │   │   └── typing-extensions v4.15.0
+│   │   │   └── typing-extensions v4.15.0
+│   │   ├── packaging v25.0
+│   │   ├── protobuf v6.33.1
+│   │   ├── pydantic v2.12.4 (*)
+│   │   ├── python-dotenv v1.2.1
+│   │   ├── pyyaml v6.0.3
+│   │   ├── requests v2.32.5 (*)
+│   │   ├── sqlparse v0.5.3
+│   │   ├── typing-extensions v4.15.0
+│   │   └── uvicorn v0.38.0
+│   │       ├── click v8.3.0
+│   │       └── h11 v0.16.0
+│   ├── mlflow-tracing v3.6.0
+│   │   ├── cachetools v6.2.2
+│   │   ├── databricks-sdk v0.73.0 (*)
+│   │   ├── opentelemetry-api v1.38.0 (*)
+│   │   ├── opentelemetry-proto v1.38.0 (*)
+│   │   ├── opentelemetry-sdk v1.38.0 (*)
+│   │   ├── packaging v25.0
+│   │   ├── protobuf v6.33.1
+│   │   └── pydantic v2.12.4 (*)
+│   ├── numpy v1.26.4
+│   ├── pandas v2.3.3
+│   │   ├── numpy v1.26.4
+│   │   ├── python-dateutil v2.9.0.post0 (*)
+│   │   ├── pytz v2025.2
+│   │   └── tzdata v2025.2
+│   ├── pyarrow v22.0.0
+│   ├── scikit-learn v1.7.2
+│   │   ├── joblib v1.5.2
+│   │   ├── numpy v1.26.4
+│   │   ├── scipy v1.16.3
+│   │   │   └── numpy v1.26.4
+│   │   └── threadpoolctl v3.6.0
+│   ├── scipy v1.16.3 (*)
+│   └── sqlalchemy v2.0.44 (*)
+├── papermill v2.6.0
+│   ├── aiohttp v3.13.2
+│   │   ├── aiohappyeyeballs v2.6.1
+│   │   ├── aiosignal v1.4.0
+│   │   │   ├── frozenlist v1.8.0
+│   │   │   └── typing-extensions v4.15.0
+│   │   ├── attrs v25.4.0
+│   │   ├── frozenlist v1.8.0
+│   │   ├── multidict v6.7.0
+│   │   ├── propcache v0.4.1
+│   │   └── yarl v1.22.0
+│   │       ├── idna v3.11
+│   │       ├── multidict v6.7.0
+│   │       └── propcache v0.4.1
+│   ├── ansicolors v1.1.8
+│   ├── click v8.3.0
+│   ├── entrypoints v0.4
+│   ├── nbclient v0.10.2
+│   │   ├── jupyter-client v8.6.3
+│   │   │   ├── jupyter-core v5.9.1
+│   │   │   │   ├── platformdirs v4.5.0
+│   │   │   │   └── traitlets v5.14.3
+│   │   │   ├── python-dateutil v2.9.0.post0 (*)
+│   │   │   ├── pyzmq v27.1.0
+│   │   │   ├── tornado v6.5.2
+│   │   │   └── traitlets v5.14.3
+│   │   ├── jupyter-core v5.9.1 (*)
+│   │   ├── nbformat v5.10.4
+│   │   │   ├── fastjsonschema v2.21.2
+│   │   │   ├── jsonschema v4.25.1
+│   │   │   │   ├── attrs v25.4.0
+│   │   │   │   ├── jsonschema-specifications v2025.9.1
+│   │   │   │   │   └── referencing v0.37.0
+│   │   │   │   │       ├── attrs v25.4.0
+│   │   │   │   │       ├── rpds-py v0.28.0
+│   │   │   │   │       └── typing-extensions v4.15.0
+│   │   │   │   ├── referencing v0.37.0 (*)
+│   │   │   │   └── rpds-py v0.28.0
+│   │   │   ├── jupyter-core v5.9.1 (*)
+│   │   │   └── traitlets v5.14.3
+│   │   └── traitlets v5.14.3
+│   ├── nbformat v5.10.4 (*)
+│   ├── pyyaml v6.0.3
+│   ├── requests v2.32.5 (*)
+│   ├── tenacity v9.1.2
+│   └── tqdm v4.67.1
+├── pip v25.3
+├── python-dotenv v1.2.1
+├── scikit-learn v1.7.2 (*)
+├── sectionproperties v3.7.3
+│   ├── cytriangle v1.0.3
+│   │   └── numpy v1.26.4
+│   ├── matplotlib v3.10.7 (*)
+│   ├── more-itertools v10.8.0
+│   ├── numpy v1.26.4
+│   ├── rich[jupyter] v14.2.0
+│   │   ├── markdown-it-py v4.0.0
+│   │   │   └── mdurl v0.1.2
+│   │   ├── pygments v2.19.2
+│   │   └── ipywidgets v8.1.8 (extra: jupyter)
+│   │       ├── comm v0.2.3
+│   │       ├── ipython v9.7.0
+│   │       │   ├── decorator v5.2.1
+│   │       │   ├── ipython-pygments-lexers v1.1.1
+│   │       │   │   └── pygments v2.19.2
+│   │       │   ├── jedi v0.19.2
+│   │       │   │   └── parso v0.8.5
+│   │       │   ├── matplotlib-inline v0.2.1
+│   │       │   │   └── traitlets v5.14.3
+│   │       │   ├── pexpect v4.9.0
+│   │       │   │   └── ptyprocess v0.7.0
+│   │       │   ├── prompt-toolkit v3.0.52
+│   │       │   │   └── wcwidth v0.2.14
+│   │       │   ├── pygments v2.19.2
+│   │       │   ├── stack-data v0.6.3
+│   │       │   │   ├── asttokens v3.0.0
+│   │       │   │   ├── executing v2.2.1
+│   │       │   │   └── pure-eval v0.2.3
+│   │       │   └── traitlets v5.14.3
+│   │       ├── jupyterlab-widgets v3.0.16
+│   │       ├── traitlets v5.14.3
+│   │       └── widgetsnbextension v4.0.15
+│   ├── scipy v1.16.3 (*)
+│   └── shapely v2.1.2
+│       └── numpy v1.26.4
+├── sigmaepsilon-math v2.2.0
+│   ├── awkward v2.8.10
+│   │   ├── awkward-cpp v50
+│   │   │   └── numpy v1.26.4
+│   │   ├── fsspec v2023.12.2
+│   │   ├── numpy v1.26.4
+│   │   └── packaging v25.0
+│   ├── numba v0.62.1
+│   │   ├── llvmlite v0.45.1
+│   │   └── numpy v1.26.4
+│   ├── numpy v1.26.4
+│   ├── pydantic v2.12.4 (*)
+│   ├── scipy v1.16.3 (*)
+│   ├── sigmaepsilon-core v1.2.2
+│   │   ├── appdirs v1.4.4
+│   │   ├── six v1.17.0
+│   │   └── toml v0.10.2
+│   ├── sigmaepsilon-deepdict v2.0.1
+│   │   └── sigmaepsilon-core v1.2.2 (*)
+│   ├── sympy v1.14.0
+│   │   └── mpmath v1.3.0
+│   └── zipp v3.23.0
+├── sigmaepsilon-solid-fourier v2.1.3
+│   ├── sigmaepsilon-deepdict v2.0.1 (*)
+│   ├── sigmaepsilon-mesh v3.1.0
+│   │   ├── fsspec v2023.12.2
+│   │   ├── meshio v5.3.5
+│   │   │   ├── numpy v1.26.4
+│   │   │   └── rich v14.2.0 (*)
+│   │   ├── numpy v1.26.4
+│   │   ├── pillow v12.0.0
+│   │   ├── sectionproperties v3.7.3 (*)
+│   │   ├── sigmaepsilon-deepdict v2.0.1 (*)
+│   │   ├── sigmaepsilon-math v2.2.0 (*)
+│   │   └── toml v0.10.2
+│   └── sigmaepsilon-solid-material v1.0.2
+│       ├── sigmaepsilon-mesh v3.1.0 (*)
+│       └── xarray v2024.11.0
+│           ├── numpy v1.26.4
+│           ├── packaging v25.0
+│           └── pandas v2.3.3 (*)
+└── torch v2.9.1
+    ├── filelock v3.20.0
+    ├── fsspec v2023.12.2
+    ├── jinja2 v3.1.6 (*)
+    ├── networkx v3.5
+    ├── setuptools v80.9.0
+    ├── sympy v1.14.0 (*)
+    └── typing-extensions v4.15.0
+(*) Package tree already displayed
