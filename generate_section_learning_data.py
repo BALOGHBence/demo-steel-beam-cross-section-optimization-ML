@@ -9,6 +9,7 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 import argparse
 from argparse import Namespace
+from pydantic import BaseModel
 
 from cso.section import construct_section, section_properties, random_section_params
 from cso.logger import get_logger, set_log_level
@@ -19,38 +20,48 @@ logger = get_logger()
 set_log_level("INFO")
 
 
-def generate_sample(args: tuple[dict, dict]) -> dict:
+
+class SampleInput(BaseModel):
+    section_type: str
+    section_params: dict
+    mesh_sizes: int | list[int]
+    material_params: dict
+    
+    
+class Sample(BaseModel):
+    section_type: str
+    section_params: dict
+    valid: bool
+    stiffness_props: dict
+
+
+def generate_sample(input: SampleInput) -> dict:
     """Generate a single data sample of section parameters, loads, and utilization."""
-    (
-        section_type,
-        section_params,
-        mesh_sizes,
-        material_params,
-    ) = args
     try:
         section = construct_section(
-            geometry_constructor=section_type,
-            params=section_params,
-            material=material_params,
-            mesh_sizes=mesh_sizes,
+            geometry_constructor=input.section_type,
+            params=input.section_params,
+            material=input.material_params,
+            mesh_sizes=input.mesh_sizes,
             calculate=True,
         )
         stiffness_props = section_properties(section)
         valid = True
     except Exception as e:
         if "TopologyException" in str(e):
-            logger.debug(f"TopologyException for params {section_params}: {e}")
+            logger.debug(f"TopologyException for params {input.section_params}: {e}")
         else:
-            logger.error(f"Error generating sample for params {section_params}: {e}")
+            logger.error(f"Error generating sample for params {input.section_params}: {e}")
         stiffness_props = {v: None for v in CROSS_SECTION_PARAMETERS}
         valid = False
 
-    result = {
-        **section_params,
-        **stiffness_props,
-        "section_type": section_type,
-        "valid": valid,
-    }
+    result = Sample(
+        section_type=input.section_type,
+        section_params=input.section_params,
+        valid=valid,
+        stiffness_props=stiffness_props,
+    )
+
     return result
 
 
@@ -94,7 +105,7 @@ def generate_learning_data():
 
         if (num_sections := args.num_sections) < 0:
             num_sections = config["num_sections"]
-
+            
         assert num_sections > 0, "Number of sections must be positive."
 
         logger.info("Generating random section parameters...")
@@ -103,7 +114,13 @@ def generate_learning_data():
         for _ in range(num_sections):
             section_params = random_section_params(section_data)
             mesh_sizes = section_data["mesh_sizes"]
-            tasks.append((section_type, section_params, mesh_sizes, material_params))
+            sample_input = SampleInput(
+                section_type=section_type,
+                section_params=section_params,
+                mesh_sizes=mesh_sizes,
+                material_params=material_params,
+            )
+            tasks.append(sample_input)
 
         logger.info(f"Generated {len(tasks)} tasks.")
 
