@@ -22,6 +22,7 @@ set_log_level("INFO")
 
 
 class SampleInput(BaseModel):
+    """Input data model for generating a sample."""
     section_type: str
     section_params: dict
     mesh_sizes: int | list[int]
@@ -29,6 +30,7 @@ class SampleInput(BaseModel):
 
 
 class Sample(BaseModel):
+    """Data model representing a generated sample."""
     section_type: str
     section_params: dict
     valid: bool
@@ -47,9 +49,10 @@ class Sample(BaseModel):
         return flat_dict
 
 
-def generate_sample(
+def generate_input(
     section_type: str, section_data: dict, material_params: dict
 ) -> Generator[SampleInput, None, None]:
+    """Generator function that yields SampleInput instances with randomized parameters."""
     while True:
         section_params = random_section_params(section_data)
         material_params = random_material_params(material_params)
@@ -63,7 +66,7 @@ def generate_sample(
         yield sample_input
 
 
-def process_sample(input: SampleInput) -> dict:
+def generate_sample(input: SampleInput) -> dict:
     """Generate a single data sample of section parameters, loads, and utilization."""
     try:
         section = construct_section(
@@ -104,6 +107,7 @@ def process_sample(input: SampleInput) -> dict:
 
 
 def parse_args() -> Namespace:
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Cross Section Optimization")
     parser.add_argument(
         "--config", type=str, default="config.json", help="Path to the config file"
@@ -133,6 +137,7 @@ def parse_args() -> Namespace:
 
 
 def generate_learning_data():
+    """Main function to generate learning data based on configuration."""
     args = parse_args()
     set_log_level(args.loglevel)
     try:
@@ -144,7 +149,7 @@ def generate_learning_data():
         section_data = config["section"]
         section_type = section_data["type"]
 
-        sample_generator = generate_sample(section_type, section_data, material_params)
+        input_generator = generate_input(section_type, section_data, material_params)
 
         if (num_samples := args.num_samples) < 0:
             num_samples = config["num_samples"]
@@ -165,7 +170,7 @@ def generate_learning_data():
                 f"Processing batch {batch_idx+1}/{total_batches} ({batch_count} samples)..."
             )
 
-            tasks = [next(sample_generator) for _ in range(batch_count)]
+            tasks = [next(input_generator) for _ in range(batch_count)]
             data = []
             with multiprocessing.Pool(num_workers) as pool:
                 with tqdm(
@@ -182,7 +187,7 @@ def generate_learning_data():
 
                     for t in tasks:
                         pool.apply_async(
-                            process_sample,
+                            generate_sample,
                             args=(t,),
                             callback=on_success,
                             error_callback=on_error,
