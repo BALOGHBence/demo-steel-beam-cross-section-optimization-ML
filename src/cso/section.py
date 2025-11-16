@@ -5,6 +5,7 @@ from typing import Callable
 from types import NoneType
 import numpy as np
 import random
+from pydantic import BaseModel, Field
 from .constants import INTERNAL_FORCE_COMPONENTS
 from .logger import get_logger
 
@@ -18,9 +19,32 @@ geometry_constructors = {
 }
 
 
+class SectionStiffnessProperties(BaseModel):
+    """
+    Data class representing key stiffness properties of a cross section.
+    """
+
+    A: float = Field(..., description="Area of the section. SI units: [m^2].", gt=0)
+    ksx: float = Field(
+        ..., description="Shear correction factor in x direction (dimensionless).", gt=0
+    )
+    ksy: float = Field(
+        ..., description="Shear correction factor in y direction (dimensionless).", gt=0
+    )
+    Ixx: float = Field(
+        ..., description="Second moment of area about x-axis. SI units: [m^4].", gt=0
+    )
+    Iyy: float = Field(
+        ..., description="Second moment of area about y-axis. SI units: [m^4].", gt=0
+    )
+    Ixy: float = Field(
+        ..., description="Product moment of area. SI units: [m^4].",
+    )
+
+
 def _get_geometry_constructor_by_name(name: str) -> Callable:
     """Returns the section handler function based on the given name."""
-    
+
     if name not in geometry_constructors:
         raise ValueError(f"Handler '{name}' is not recognized.")
     return geometry_constructors[name]
@@ -34,7 +58,7 @@ def construct_section(
     calculate: bool = True,
 ) -> Section:
     """Builds a section from a geometry constructor and parameters and optionally creates the mesh.
-    
+
     Parameters
     ----------
     geometry_constructor : Callable | str
@@ -47,18 +71,18 @@ def construct_section(
         The mesh sizes to be used for mesh generation. If None, no mesh is created.
     """
     if isinstance(geometry_constructor, str):
-        
+
         geometry_constructor = _get_geometry_constructor_by_name(geometry_constructor)
     if isinstance(material, dict):
         material = Material(**material)
-    
+
     geom = geometry_constructor(**params, material=material)
-    
+
     if mesh_sizes:
         geom.create_mesh(mesh_sizes=mesh_sizes)
 
     section = Section(geometry=geom)
-    
+
     if calculate:
         section.calculate_geometric_properties()
         section.calculate_warping_properties()
@@ -94,26 +118,41 @@ def utilization(section: Section, loads: dict) -> float:
     return utilization_max
 
 
-def section_properties(section: Section) -> dict:
+def section_properties(section: Section, as_dict: bool = True) -> dict | SectionStiffnessProperties:
     """Extract key geometric properties of the section."""
+
+    # calculate geometric and warping properties
+    section.calculate_geometric_properties()
+    section.calculate_warping_properties()
+
+    # retrieve properties
     area = section.get_area()
-    ixx_c, iyy_c, ixy_c = section.get_eic()
-    g_eff = section.get_g_eff()
-    props = {
-        "area": area,
-        "ixx": ixx_c,
-        "iyy": iyy_c,
-        "ixy": ixy_c,
-        "g_eff": g_eff,
-    }
-    return props
+    shear_area_x, shear_area_y = section.get_eas(e_ref=section.materials[0])
+    Ixx, Iyy, Ixy = section.get_eic(e_ref=section.materials[0])
+
+    ksx = shear_area_x / area
+    ksy = shear_area_y / area
+
+    props = SectionStiffnessProperties(
+        A=area,
+        ksx=ksx,
+        ksy=ksy,
+        Ixx=Ixx,
+        Iyy=Iyy,
+        Ixy=Ixy,
+    )
+
+    if as_dict:
+        return props.model_dump()
+    else:
+        return props
 
 
 def find_internal_force_limits(section: Section) -> dict:
-    """Find the min and max load values for each load component that 
+    """Find the min and max load values for each load component that
     lead to utilization of at least 1.0."""
 
-    def _find_extreme_load_value(load_component:str, load_step:float) -> float:
+    def _find_extreme_load_value(load_component: str, load_step: float) -> float:
         load_value = load_step
         utilization_value = 0.0
         while (utilization_value < 0.9) or (utilization_value > 1.3):
@@ -123,12 +162,18 @@ def find_internal_force_limits(section: Section) -> dict:
             new_utilization_value = utilization(section, loads)
             # calculate new step size based on linear prediction
             delta_u = new_utilization_value - utilization_value
-            load_step = (1 - new_utilization_value) * load_step / delta_u if delta_u != 0 else load_step
+            load_step = (
+                (1 - new_utilization_value) * load_step / delta_u
+                if delta_u != 0
+                else load_step
+            )
             # update utilization value
             utilization_value = new_utilization_value
             # increment load value
             load_value += load_step
-            logger.debug(f"Testing {load_component}={load_value:.2f}, Utilization={utilization_value:.4f}, Step={load_step:.2f}")
+            logger.debug(
+                f"Testing {load_component}={load_value:.2f}, Utilization={utilization_value:.4f}, Step={load_step:.2f}"
+            )
         return load_value
 
     logger.info("Finding internal force limits...")
@@ -139,7 +184,9 @@ def find_internal_force_limits(section: Section) -> dict:
         max_value = _find_extreme_load_value(load_component, load_step=1.0)
         min_value = _find_extreme_load_value(load_component, load_step=-1.0)
         results[load_component] = (min_value, max_value)
-        logger.debug(f"Found limits for load component {load_component}: {min_value}, {max_value}")
+        logger.debug(
+            f"Found limits for load component {load_component}: {min_value}, {max_value}"
+        )
 
     logger.info("Finished finding internal force limits.")
     return results
