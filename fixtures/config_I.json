@@ -21,12 +21,12 @@
                 "default": 100,
                 "variable": true
             },
-            "tf": {
+            "t_f": {
                 "range": [8, 30],
                 "default": 14,
                 "variable": true
             },
-            "tw": {
+            "t_w": {
                 "range": [8, 30],
                 "default": 14,
                 "variable": true
