@@ -2,6 +2,6 @@ CANONICAL_SCORE_NAME = "performance_score"
 
 INTERNAL_FORCE_COMPONENTS = ["n", "mxx", "myy", "vx", "vy", "mzz"]
 
-CROSS_SECTION_PARAMETERS = ["area", "ixx", "iyy", "ixy", "g_eff"]
+CROSS_SECTION_PARAMETERS = ["A", "ksx", "ksy", "Ixx", "Iyy", "Ixy"]
 
-STIFFNESS_PARAMETERS = ["ixx", "iyy", "ixy", "g_eff"]
+MATERIAL_PARAMETERS = ["elastic_modulus", "poissons_ratio", "yield_strength"]
