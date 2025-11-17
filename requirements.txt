@@ -1479,6 +1479,7 @@ pydantic==2.12.4 \
     --hash=sha256:0f8cb9555000a4b5b617f66bfd2566264c4984b27589d3b845685983e8ea85ac \
     --hash=sha256:92d3d202a745d46f9be6df459ac5a064fdaa3c1c4cd8adcfa332ccf3c05f871e
     # via
+    #   demo-steel-beam-cross-section-optimization-ml
     #   fastapi
     #   mlflow-skinny
     #   mlflow-tracing
@@ -1682,6 +1683,7 @@ rich==14.2.0 \
     --hash=sha256:73ff50c7c0c1c77c8243079283f4edb376f0f6442433aecb8ce7e6d0b92d1fe4 \
     --hash=sha256:76bc51fe2e57d2b1be1f96c524b890b816e334ab4c1e45888799bfaab0021edd
     # via
+    #   demo-steel-beam-cross-section-optimization-ml
     #   meshio
     #   sectionproperties
 rpds-py==0.28.0 \
