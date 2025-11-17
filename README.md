@@ -156,20 +156,12 @@ uv run init_mlflow.py
 
 ### Step 1 - Generate training data
 
-To generate training data for a specific cross section and loads, call the file `1 - generate_learning_data.py` with suitable arguments. The following call creates 4000 data points using 8 workers and saves them as `out.csv`.
-
-```console
-uv run generate_utilization_learning_data.py --config config.json --loglevel DEBUG --num_sections 200 --num_load_cases_per_section 20 --num_workers 8 --output out.csv
-```
-
-Issuing the following command in the terminal would generate 50000 data points.
-
-```console
-uv run generate_utilization_learning_data.py --config config_rhs.json --loglevel DEBUG --num_sections 500 --num_load_cases_per_section 100 --num_workers 8 --output data_50000.csv
-```
-
 ```console
 uv run generate_section_learning_data.py --config fixtures/config_rhs.json --loglevel INFO --num_sections 10000 --num_workers 8 --output fixtures/section_data_10000.csv
+```
+
+```console
+uv run generate_utilization_learning_data.py --config fixtures/config_I.json --loglevel INFO --num_samples 50000 --num_workers 8 --output fixtures/data_I_50000.csv
 ```
 
 Note down the name of the configuration file and the generated csv file, you'll need these in later steps.
