@@ -28,15 +28,13 @@ class MaterialProperties(BaseModel):
     )
     
 
-def random_material_params(material_data: dict, std: float = 0.1) -> dict:
+def random_material_params(material_data: dict) -> dict:
     """Generate random material parameters, randomized by std.
     
     Parameters
     ----------
     material_data : dict
         Dictionary containing the base material properties.
-    std : float, optional
-        Standard deviation for the normal distribution used for randomization (default is 0.1).
     """
     params = material_data.copy()
     elastic_modulus = params.get("elastic_modulus")
@@ -44,9 +42,10 @@ def random_material_params(material_data: dict, std: float = 0.1) -> dict:
     yield_strength = params.get("yield_strength")
 
     # Randomize each property by normal distribution (mean=original, std=std*original)
-    elastic_modulus = float(np.random.normal(elastic_modulus, std * elastic_modulus))
-    poissons_ratio = float(np.random.normal(poissons_ratio, std * poissons_ratio))
-    yield_strength = float(np.random.normal(yield_strength, std * yield_strength))
+    choices = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]
+    elastic_modulus = elastic_modulus * np.random.choice(choices)
+    poissons_ratio = poissons_ratio * np.random.choice(choices)
+    yield_strength = yield_strength * np.random.choice(choices)
     
     # Ensure physical bounds
     poissons_ratio = max(-0.49, min(poissons_ratio, 0.99))

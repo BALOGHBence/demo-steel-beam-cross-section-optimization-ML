@@ -161,7 +161,11 @@ uv run generate_section_learning_data.py --config fixtures/config_rhs.json --log
 ```
 
 ```console
-uv run generate_utilization_learning_data.py --config fixtures/config_I.json --loglevel INFO --num_samples 50000 --num_workers 8 --output fixtures/data_I_50000.csv
+uv run generate_utilization_learning_data.py --config fixtures/config_I.json --loglevel INFO --num_samples 50000 --num_workers 4 --batch_size 100 --output fixtures/data_I_50000.csv
+```
+
+```console
+uv run generate_data.py --config fixtures/config_I.json --loglevel INFO --num_samples 20 --num_workers 8 --output fixtures/test_data.csv --batch_size 10
 ```
 
 Note down the name of the configuration file and the generated csv file, you'll need these in later steps.

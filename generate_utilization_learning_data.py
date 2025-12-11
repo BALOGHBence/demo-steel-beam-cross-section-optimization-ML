@@ -1,6 +1,6 @@
 # Generate learning data for model training
 
-from typing import Generator
+from typing import Generator, Optional
 import pandas as pd
 import multiprocessing
 import json, sys
@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import argparse
 from argparse import Namespace
 from pydantic import BaseModel
+import random
 
 from cso.section import (
     construct_section,
@@ -21,7 +22,7 @@ from cso.section import (
 )
 from cso.loads import random_loads
 from cso.material import MaterialProperties, random_material_params
-from cso.constants import CROSS_SECTION_PARAMETERS
+from cso.constants import CROSS_SECTION_PARAMETERS, INTERNAL_FORCE_COMPONENTS
 from cso.logger import get_logger, set_log_level
 
 load_dotenv()
@@ -49,7 +50,7 @@ class Sample(BaseModel):
     material_props: dict
     load_params: dict
     utilization: float
-    
+
     def as_flat_dict(self) -> dict:
         """Returns a flattened dictionary representation of the sample."""
         flat_dict = {
@@ -129,7 +130,9 @@ def generate_sample(input: SampleInput) -> dict:
     return result
 
 
-def calculate_load_ranges(section_type: str, section_data: dict, material_params: dict) -> dict:
+def calculate_load_ranges(
+    section_type: str, section_data: dict, material_params: dict
+) -> dict:
     section = construct_section(
         geometry_constructor=section_type,
         params=default_section_params(section_data),
@@ -138,6 +141,22 @@ def calculate_load_ranges(section_type: str, section_data: dict, material_params
         calculate=True,
     )
     return find_internal_force_limits(section)
+
+
+def rebalance_data(df: pd.DataFrame, bounds: Optional[list[int]]) -> pd.DataFrame:
+    """Rebalance the dataset by scaling loads to achieve a more uniform distribution of utilization values."""
+
+    def transform(row):
+        target_utilization = random.uniform(bounds[0], bounds[1])
+        utilization = row["utilization"]
+        scalar = target_utilization / utilization
+        for f in INTERNAL_FORCE_COMPONENTS:
+            row[f] *= scalar
+        row["utilization"] *= scalar
+        return row
+
+    df_transformed = df.apply(lambda row: transform(row), axis=1)
+    return df_transformed
 
 
 def parse_args() -> Namespace:
@@ -180,25 +199,27 @@ def generate_learning_data():
         material_params = config["material"]
         section_data = config["section"]
         section_type = section_data["type"]
-        
+
         if (num_samples := args.num_samples) < 0:
             num_samples = config["num_samples"]
         assert num_samples > 0, "Number of samples must be positive."
-        
+
         # Load ranges for random generation
         logger.info("Calculating load ranges based on default section parameters...")
         load_ranges = calculate_load_ranges(section_type, section_data, material_params)
         logger.debug(f"Determined load ranges: {load_ranges}")
 
-        input_generator = generate_input(section_type, section_data, material_params, load_ranges)
-        
+        input_generator = generate_input(
+            section_type, section_data, material_params, load_ranges
+        )
+
         batch_size = args.batch_size
         num_workers = args.num_workers
         output = args.output
-        
+
         logger.info(f"Generating {num_samples} samples in batches of {batch_size}...")
         total_batches = (num_samples + batch_size - 1) // batch_size
-        
+
         for batch_idx in range(total_batches):
             start_idx = batch_idx * batch_size
             end_idx = min(start_idx + batch_size, num_samples)
@@ -237,7 +258,17 @@ def generate_learning_data():
             write_header = batch_idx == 0
             df.to_csv(output, mode="a", header=write_header, index=False)
             logger.info(f"Appended batch {batch_idx+1} to {output}.")
-        logger.info(f"Data generation completed. All batches saved to {output}.")
+
+        logger.info(f"Data generation completed.")
+        
+        # logger.info(
+        #     "Rebalancing dataset to achieve uniform utilization distribution..."
+        # )
+        # df = pd.read_csv(output)
+        # f_rebalanced = rebalance_data(df, bounds=[0.1, 3.0])
+        # df_rebalanced.to_csv(output, index=False)
+        # logger.info(f"Rebalanced data saved to {output}.")
+
     except Exception as e:
         print(f"Error: {e}")
         return 1

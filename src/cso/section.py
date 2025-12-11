@@ -155,7 +155,7 @@ def find_internal_force_limits(section: Section) -> dict:
     def _find_extreme_load_value(load_component: str, load_step: float) -> float:
         load_value = load_step
         utilization_value = 0.0
-        while (utilization_value < 0.9) or (utilization_value > 1.3):
+        while (utilization_value < 0.5) or (utilization_value > 2.5):
             # calculate utilization for current load value
             loads = {component: 0.0 for component in INTERNAL_FORCE_COMPONENTS}
             loads[load_component] = load_value
